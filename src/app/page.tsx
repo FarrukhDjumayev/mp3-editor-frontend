@@ -36,7 +36,7 @@ export default function Home() {
       a.download = "edited.mp3";
       a.click();
       window.URL.revokeObjectURL(url);
-    } catch (error) {
+    } catch {
       alert("Xatolik yuz berdi!");
     } finally {
       setIsLoading(false);
@@ -119,7 +119,7 @@ export default function Home() {
               {/* Title Input */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-white">
-                  Qo'shiq nomi
+                  Qo&apos;shiq nomi
                 </label>
                 <input
                   type="text"
@@ -169,7 +169,7 @@ export default function Home() {
             {/* Info Section */}
             <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-xs text-white/70 text-center">
-                💡 Faqat MP3 formatdagi audio fayllar qo'llab-quvvatlanadi
+                💡 Faqat MP3 formatdagi audio fayllar qo&apos;llab-quvvatlanadi
               </p>
             </div>
           </div>
