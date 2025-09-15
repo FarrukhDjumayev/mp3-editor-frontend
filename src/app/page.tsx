@@ -11,38 +11,53 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!audio) return alert("Avval MP3 yuklang!");
+  if (!audio) return alert("Avval MP3 yuklang!");
 
-    setIsLoading(true);
+  setIsLoading(true);
 
-    const formData = new FormData();
-    formData.append("audio", audio);
-    if (cover) formData.append("cover", cover);
-    formData.append("title", title);
-    formData.append("artist", artist);
+  const formData = new FormData();
+  formData.append("audio", audio);
+  if (cover) formData.append("cover", cover);
+  formData.append("title", title);
+  formData.append("artist", artist);
 
-    try {
-      const res = await fetch("https://mp3-editor-backend.onrender.com/api/edit", {
-        method: "POST",
-        body: formData,
-      });
+  try {
+    const res = await fetch("https://mp3-editor-backend.onrender.com/api/edit", {
+      method: "POST",
+      body: formData,
+    });
 
-      if (!res.ok) throw new Error("Xatolik!");
+    if (!res.ok) throw new Error("Xatolik!");
 
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
 
+    // ✅ Telegram Web App va barcha brauzerlar uchun universal fayl yuklash
+    if (navigator.userAgent.includes("Telegram")) {
+      // Telegram mini app
+      window.open(url, "_blank");
+    } else if (window.navigator && (window.navigator as any).msSaveOrOpenBlob) {
+      // IE / Edge
+      (window.navigator as any).msSaveOrOpenBlob(blob, "edited.mp3");
+    } else {
+      // Boshqa brauzerlar
       const a = document.createElement("a");
       a.href = url;
       a.download = "edited.mp3";
+      document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-    } catch {
-      alert("Xatolik yuz berdi!");
-    } finally {
-      setIsLoading(false);
+      a.remove();
     }
-  };
+
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error(err);
+    alert("Xatolik yuz berdi!");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-950 relative overflow-hidden">
