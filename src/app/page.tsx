@@ -11,53 +11,56 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
-  if (!audio) return alert("Avval MP3 yuklang!");
+    if (!audio) return alert("Avval MP3 yuklang!");
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  const formData = new FormData();
-  formData.append("audio", audio);
-  if (cover) formData.append("cover", cover);
-  formData.append("title", title);
-  formData.append("artist", artist);
+    const formData = new FormData();
+    formData.append("audio", audio);
+    if (cover) formData.append("cover", cover);
+    formData.append("title", title);
+    formData.append("artist", artist);
 
-  try {
-    const res = await fetch("https://mp3-editor-backend.onrender.com/api/edit", {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await fetch(
+        "https://mp3-editor-backend.onrender.com/api/edit",
+        { method: "POST", body: formData }
+      );
 
-    if (!res.ok) throw new Error("Xatolik!");
+      if (!res.ok) throw new Error("Xatolik!");
 
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
 
-    // ✅ Telegram Web App va barcha brauzerlar uchun universal fayl yuklash
-    if (navigator.userAgent.includes("Telegram")) {
-      // Telegram mini app
-      window.open(url, "_blank");
-    } else if (window.navigator && (window.navigator as any).msSaveOrOpenBlob) {
-      // IE / Edge
-      (window.navigator as any).msSaveOrOpenBlob(blob, "edited.mp3");
-    } else {
-      // Boshqa brauzerlar
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "edited.mp3";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      // Universal fayl yuklash (Telegram Web App, brauzerlar, IE/Edge)
+      const nav = window.navigator as Navigator & {
+        msSaveOrOpenBlob?: (blob: Blob, defaultName?: string) => boolean;
+      };
+
+      if (navigator.userAgent.includes("Telegram")) {
+        // Telegram mini app: yangi tab ochiladi
+        window.open(url, "_blank");
+      } else if (nav.msSaveOrOpenBlob) {
+        // IE / Edge
+        nav.msSaveOrOpenBlob(blob, "edited.mp3");
+      } else {
+        // Boshqa brauzerlar
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "edited.mp3";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Xatolik yuz berdi!");
+    } finally {
+      setIsLoading(false);
     }
-
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error(err);
-    alert("Xatolik yuz berdi!");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-950 relative overflow-hidden">
@@ -98,10 +101,7 @@ export default function Home() {
                     type="file"
                     accept="audio/mp3"
                     onChange={(e) => setAudio(e.target.files?.[0] || null)}
-                    className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 
-                               focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all 
-                               file:mr-3 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium 
-                               file:bg-green-400 file:text-black file:rounded-lg hover:file:bg-green-300 cursor-pointer"
+                    className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all file:mr-3 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-green-400 file:text-black file:rounded-lg hover:file:bg-green-300 cursor-pointer"
                   />
                   <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400/60" />
                 </div>
@@ -112,7 +112,7 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Cover Image Upload */}
+              {/* Cover Upload */}
               <div className="space-y-2">
                 <label className="flex items-center text-sm font-medium text-green-400 mb-2">
                   <Image className="w-4 h-4 mr-2" />
@@ -123,10 +123,7 @@ export default function Home() {
                     type="file"
                     accept="image/*"
                     onChange={(e) => setCover(e.target.files?.[0] || null)}
-                    className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 
-                               focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all 
-                               file:mr-3 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium 
-                               file:bg-green-400 file:text-black file:rounded-lg hover:file:bg-green-300 cursor-pointer"
+                    className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all file:mr-3 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-green-400 file:text-black file:rounded-lg hover:file:bg-green-300 cursor-pointer"
                   />
                   <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400/60" />
                 </div>
@@ -137,33 +134,25 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Title Input */}
+              {/* Title & Artist */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-green-400">
-                  Qo&apos;shiq nomi
-                </label>
+                <label className="block text-sm font-medium text-green-400">Qo'shiq nomi</label>
                 <input
                   type="text"
                   placeholder="Yangi nom (Title)"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 
-                             focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
+                  className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
                 />
               </div>
-
-              {/* Artist Input */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-green-400">
-                  Ijrochi
-                </label>
+                <label className="block text-sm font-medium text-green-400">Ijrochi</label>
                 <input
                   type="text"
                   placeholder="Artist nomi"
                   value={artist}
                   onChange={(e) => setArtist(e.target.value)}
-                  className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 
-                             focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
+                  className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
                 />
               </div>
 
@@ -172,10 +161,7 @@ export default function Home() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!audio || isLoading}
-                className="w-full bg-green-400 text-black font-semibold py-3 sm:py-4 px-6 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.8)] 
-                           hover:shadow-[0_0_20px_rgba(34,197,94,1)] transform hover:scale-[1.02] active:scale-[0.98] 
-                           transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 
-                           flex items-center justify-center space-x-2"
+                className="w-full bg-green-400 text-black font-semibold py-3 sm:py-4 px-6 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.8)] hover:shadow-[0_0_20px_rgba(34,197,94,1)] transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center space-x-2"
               >
                 {isLoading ? (
                   <>
@@ -190,22 +176,19 @@ export default function Home() {
                   </>
                 )}
               </button>
-            </div>
 
-            {/* Info Section */}
-            <div className="mt-6 p-4 bg-black/50 rounded-xl border border-green-400/20">
-              <p className="text-xs text-gray-400 text-center">
-                💡 Faqat MP3 formatdagi audio fayllar qo&apos;llab-quvvatlanadi
-              </p>
+              <div className="mt-6 p-4 bg-black/50 rounded-xl border border-green-400/20">
+                <p className="text-xs text-gray-400 text-center">
+                  💡 Faqat MP3 formatdagi audio fayllar qo'llab-quvvatlanadi
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-gray-500 text-sm">
-            Professional audio editing tool
-          </p>
+          <p className="text-gray-500 text-sm">Professional audio editing tool</p>
         </div>
       </main>
     </div>
