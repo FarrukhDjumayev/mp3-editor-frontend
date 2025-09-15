@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Music, Upload, Edit3, Download, FileMusic, Image } from "lucide-react";
+import { Music, Upload, Edit3, Download, FileMusic, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 export default function Home() {
   const [audio, setAudio] = useState<File | null>(null);
   const [cover, setCover] = useState<File | null>(null);
-  const [title, setTitle] = useState("");
-  const [artist, setArtist] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [title, setTitle] = useState<string>("");
+  const [artist, setArtist] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async () => {
     if (!audio) return alert("Avval MP3 yuklang!");
@@ -22,29 +23,20 @@ export default function Home() {
     formData.append("artist", artist);
 
     try {
-      const res = await fetch(
-        "https://mp3-editor-backend.onrender.com/api/edit",
-        { method: "POST", body: formData }
-      );
+      const res = await fetch("https://mp3-editor-backend.onrender.com/api/edit", { method: "POST", body: formData });
 
       if (!res.ok) throw new Error("Xatolik!");
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
 
-      // Universal fayl yuklash (Telegram Web App, brauzerlar, IE/Edge)
-      const nav = window.navigator as Navigator & {
-        msSaveOrOpenBlob?: (blob: Blob, defaultName?: string) => boolean;
-      };
+      const nav = window.navigator as Navigator & { msSaveOrOpenBlob?: (blob: Blob, defaultName?: string) => boolean };
 
       if (navigator.userAgent.includes("Telegram")) {
-        // Telegram mini app: yangi tab ochiladi
         window.open(url, "_blank");
       } else if (nav.msSaveOrOpenBlob) {
-        // IE / Edge
         nav.msSaveOrOpenBlob(blob, "edited.mp3");
       } else {
-        // Boshqa brauzerlar
         const a = document.createElement("a");
         a.href = url;
         a.download = "edited.mp3";
@@ -70,7 +62,6 @@ export default function Home() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-green-400/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
       </div>
 
-      {/* Main Content */}
       <main className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
@@ -89,7 +80,6 @@ export default function Home() {
         <div className="w-full max-w-md sm:max-w-lg lg:max-w-xl">
           <div className="bg-black/40 backdrop-blur-lg border border-green-400/30 rounded-3xl p-6 sm:p-8 shadow-[0_0_25px_rgba(34,197,94,0.4)]">
             <div className="space-y-6">
-
               {/* Audio Upload */}
               <div className="space-y-2">
                 <label className="flex items-center text-sm font-medium text-green-400 mb-2">
@@ -105,17 +95,13 @@ export default function Home() {
                   />
                   <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400/60" />
                 </div>
-                {audio && (
-                  <p className="text-xs text-green-400 flex items-center mt-1">
-                    ✓ {audio.name}
-                  </p>
-                )}
+                {audio && <p className="text-xs text-green-400 flex items-center mt-1">✓ {audio.name}</p>}
               </div>
 
               {/* Cover Upload */}
               <div className="space-y-2">
                 <label className="flex items-center text-sm font-medium text-green-400 mb-2">
-                  <Image className="w-4 h-4 mr-2" />
+                  <ImageIcon className="w-4 h-4 mr-2" />
                   Muqova rasmi (ixtiyoriy)
                 </label>
                 <div className="relative">
@@ -127,11 +113,7 @@ export default function Home() {
                   />
                   <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400/60" />
                 </div>
-                {cover && (
-                  <p className="text-xs text-green-400 flex items-center mt-1">
-                    ✓ {cover.name}
-                  </p>
-                )}
+                {cover && <p className="text-xs text-green-400 flex items-center mt-1">✓ {cover.name}</p>}
               </div>
 
               {/* Title & Artist */}
