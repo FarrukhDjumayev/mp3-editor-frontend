@@ -22,10 +22,11 @@ export default function Home() {
     formData.append("artist", artist);
 
     try {
-      const res = await fetch("https://mp3-editor-backend-production.up.railway.app/api/edit", {
+      const res = await fetch("https://mp3-editor-backend.onrender.com/api/edit", {
         method: "POST",
         body: formData,
       });
+
 
       if (!res.ok) throw new Error("Xatolik!");
 
