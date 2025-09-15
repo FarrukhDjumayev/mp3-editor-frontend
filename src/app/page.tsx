@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Music, Upload, Edit3, Download, FileMusic, Image as ImageIcon } from "lucide-react";
-import Image from "next/image";
 
 export default function Home() {
   const [audio, setAudio] = useState<File | null>(null);
@@ -22,7 +21,10 @@ export default function Home() {
     formData.append("artist", artist);
 
     try {
-      const res = await fetch("https://mp3-editor-backend.onrender.com/api/edit", { method: "POST", body: formData });
+      const res = await fetch("https://mp3-editor-backend.onrender.com/api/edit", {
+        method: "POST",
+        body: formData,
+      });
       if (!res.ok) throw new Error("Xatolik!");
 
       const blob = await res.blob();
@@ -118,7 +120,7 @@ export default function Home() {
 
               {/* Title & Artist */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-green-400">Qo'shiq nomi</label>
+                <label className="block text-sm font-medium text-green-400">Qo&apos;shiq nomi</label>
                 <input
                   type="text"
                   placeholder="Yangi nom (Title)"
@@ -161,7 +163,7 @@ export default function Home() {
 
               <div className="mt-6 p-4 bg-black/50 rounded-xl border border-green-400/20">
                 <p className="text-xs text-gray-400 text-center">
-                  💡 Faqat MP3 formatdagi audio fayllar qo'llab-quvvatlanadi
+                  💡 Faqat MP3 formatdagi audio fayllar qo&apos;llab-quvvatlanadi
                 </p>
               </div>
             </div>
