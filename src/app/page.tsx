@@ -13,7 +13,6 @@ export default function Home() {
 
   const handleSubmit = async () => {
     if (!audio) return alert("Avval MP3 yuklang!");
-
     setIsLoading(true);
 
     const formData = new FormData();
@@ -24,13 +23,14 @@ export default function Home() {
 
     try {
       const res = await fetch("https://mp3-editor-backend.onrender.com/api/edit", { method: "POST", body: formData });
-
       if (!res.ok) throw new Error("Xatolik!");
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
 
-      const nav = window.navigator as Navigator & { msSaveOrOpenBlob?: (blob: Blob, defaultName?: string) => boolean };
+      const nav = window.navigator as Navigator & {
+        msSaveOrOpenBlob?: (blob: Blob, defaultName?: string) => boolean;
+      };
 
       if (navigator.userAgent.includes("Telegram")) {
         window.open(url, "_blank");
@@ -90,7 +90,7 @@ export default function Home() {
                   <input
                     type="file"
                     accept="audio/mp3"
-                    onChange={(e) => setAudio(e.target.files?.[0] || null)}
+                    onChange={(e) => setAudio(e.target.files?.[0] ?? null)}
                     className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all file:mr-3 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-green-400 file:text-black file:rounded-lg hover:file:bg-green-300 cursor-pointer"
                   />
                   <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400/60" />
@@ -108,7 +108,7 @@ export default function Home() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setCover(e.target.files?.[0] || null)}
+                    onChange={(e) => setCover(e.target.files?.[0] ?? null)}
                     className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all file:mr-3 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-green-400 file:text-black file:rounded-lg hover:file:bg-green-300 cursor-pointer"
                   />
                   <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400/60" />
