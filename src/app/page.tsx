@@ -70,7 +70,7 @@ export default function Home() {
             </label>
             <input
               type="file"
-              accept="audio/mp3"
+              accept="audio/*,.mp3"
               onChange={(e) => setAudio(e.target.files?.[0] ?? null)}
               className="w-full text-sm text-gray-100 border border-green-400/30 rounded-lg p-2 bg-black/60 file:mr-2 file:py-1 file:px-3 file:bg-green-400 file:text-black file:rounded-md cursor-pointer"
             />
