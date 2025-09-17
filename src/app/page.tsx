@@ -4,23 +4,38 @@ import { useEffect, useState } from "react";
 import { Music, Edit3, FileMusic, Image as ImageIcon } from "lucide-react";
 
 // Extend the Window interface to include Telegram
+export {};
+
 declare global {
   interface Window {
     Telegram?: {
       WebApp?: {
         initDataUnsafe?: {
           user?: {
-            id?: number | string;
-            [key: string]: any;
+            id: number | string;
+            first_name?: string;
+            last_name?: string;
+            username?: string;
+            language_code?: string;
+            [key: string]: unknown;
           };
-          [key: string]: any;
+          query_id?: string;
+          auth_date?: string;
+          hash?: string;
+          [key: string]: unknown;
         };
-        [key: string]: any;
+        initData?: string;
+        expand?: () => void;
+        close?: () => void;
+        ready?: () => void;
+        sendData?: (data: string) => void;
+        [key: string]: unknown;
       };
-      [key: string]: any;
+      [key: string]: unknown;
     };
   }
 }
+
 
 export default function Home() {
   const [audio, setAudio] = useState<File | null>(null);
