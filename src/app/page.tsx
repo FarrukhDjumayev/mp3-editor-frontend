@@ -1,17 +1,48 @@
 "use client";
 
-import { useState } from "react";
-import { Music, Upload, Edit3, Download, FileMusic, Image as ImageIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Music, Edit3, FileMusic, Image as ImageIcon } from "lucide-react";
+
+// Extend the Window interface to include Telegram
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp?: {
+        initDataUnsafe?: {
+          user?: {
+            id?: number | string;
+            [key: string]: any;
+          };
+          [key: string]: any;
+        };
+        [key: string]: any;
+      };
+      [key: string]: any;
+    };
+  }
+}
 
 export default function Home() {
   const [audio, setAudio] = useState<File | null>(null);
   const [cover, setCover] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
+  const [telegramId, setTelegramId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // ✅ Telegram foydalanuvchi ID olish
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.Telegram?.WebApp?.initDataUnsafe?.user) {
+      setTelegramId(String(window.Telegram.WebApp.initDataUnsafe.user.id));
+    } else {
+      console.warn("Telegram WebApp maʼlumotlari topilmadi!");
+    }
+  }, []);
 
   const handleSubmit = async () => {
     if (!audio) return alert("Avval MP3 fayl yuklang!");
+    if (!telegramId) return alert("Telegram ID olinmadi!");
+
     setIsLoading(true);
 
     const formData = new FormData();
@@ -19,25 +50,18 @@ export default function Home() {
     if (cover) formData.append("cover", cover);
     formData.append("title", title);
     formData.append("artist", artist);
+    formData.append("telegram_id", telegramId);
 
     try {
-      const res = await fetch("https://mp3-editor-backend.onrender.com/api/edit", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/edit`, {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Xatolik!");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Xatolik!");
 
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "edited.mp3";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      alert("Audio tayyor! Bot orqali yuborildi ✅");
     } catch (err) {
       console.error(err);
       alert("Xatolik yuz berdi!");
@@ -129,7 +153,6 @@ export default function Home() {
               <>
                 <Edit3 className="w-5 h-5" />
                 Tahrirlash
-                <Download className="w-5 h-5" />
               </>
             )}
           </button>
