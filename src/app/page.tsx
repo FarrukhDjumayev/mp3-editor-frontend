@@ -6,12 +6,12 @@ import { Music, Upload, Edit3, Download, FileMusic, Image as ImageIcon } from "l
 export default function Home() {
   const [audio, setAudio] = useState<File | null>(null);
   const [cover, setCover] = useState<File | null>(null);
-  const [title, setTitle] = useState<string>("");
-  const [artist, setArtist] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [title, setTitle] = useState("");
+  const [artist, setArtist] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!audio) return alert("Avval MP3 yuklang!");
+    if (!audio) return alert("Avval MP3 fayl yuklang!");
     setIsLoading(true);
 
     const formData = new FormData();
@@ -25,28 +25,18 @@ export default function Home() {
         method: "POST",
         body: formData,
       });
+
       if (!res.ok) throw new Error("Xatolik!");
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
 
-      const nav = window.navigator as Navigator & {
-        msSaveOrOpenBlob?: (blob: Blob, defaultName?: string) => boolean;
-      };
-
-      if (navigator.userAgent.includes("Telegram")) {
-        window.open(url, "_blank");
-      } else if (nav.msSaveOrOpenBlob) {
-        nav.msSaveOrOpenBlob(blob, "edited.mp3");
-      } else {
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "edited.mp3";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }
-
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "edited.mp3";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
@@ -57,124 +47,99 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-950 relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-10 -left-10 w-80 h-80 bg-green-500/20 rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-green-400/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-950 flex flex-col items-center justify-center p-4">
+      {/* Header */}
+      <div className="text-center mb-6">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-500/20 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+          <Music className="w-7 h-7 text-green-400" />
+        </div>
+        <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-green-400">MP3 Editor</h1>
+        <p className="text-gray-400 text-sm sm:text-base mt-1">
+          Audio fayllaringizni professional tarzda tahrirlang
+        </p>
       </div>
 
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="text-center mb-8 sm:mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-400 to-emerald-600 rounded-2xl mb-4 shadow-[0_0_15px_rgba(34,197,94,0.8)]">
-            <Music className="w-8 h-8 sm:w-10 sm:h-10 text-black" />
+      {/* Form */}
+      <div className="w-full max-w-md bg-black/50 p-5 rounded-2xl border border-green-400/30 backdrop-blur-lg shadow-xl">
+        <div className="space-y-5">
+          {/* Audio Upload */}
+          <div>
+            <label className="flex items-center text-sm text-green-400 mb-2">
+              <FileMusic className="w-4 h-4 mr-2" />
+              MP3 fayl yuklash
+            </label>
+            <input
+              type="file"
+              accept="audio/mp3"
+              onChange={(e) => setAudio(e.target.files?.[0] ?? null)}
+              className="w-full text-sm text-gray-100 border border-green-400/30 rounded-lg p-2 bg-black/60 file:mr-2 file:py-1 file:px-3 file:bg-green-400 file:text-black file:rounded-md cursor-pointer"
+            />
+            {audio && <p className="text-xs text-green-400 mt-1">✓ {audio.name}</p>}
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-green-400 drop-shadow-lg">
-            MP3 Editor
-          </h1>
-          <p className="text-gray-400 text-sm sm:text-base lg:text-lg max-w-md mx-auto mt-2">
-            Audio fayllaringizni professional darajada tahrirlang
-          </p>
-        </div>
 
-        {/* Form Container */}
-        <div className="w-full max-w-md sm:max-w-lg lg:max-w-xl">
-          <div className="bg-black/40 backdrop-blur-lg border border-green-400/30 rounded-3xl p-6 sm:p-8 shadow-[0_0_25px_rgba(34,197,94,0.4)]">
-            <div className="space-y-6">
-              {/* Audio Upload */}
-              <div className="space-y-2">
-                <label className="flex items-center text-sm font-medium text-green-400 mb-2">
-                  <FileMusic className="w-4 h-4 mr-2" />
-                  MP3 fayl yuklash
-                </label>
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept="audio/mp3"
-                    onChange={(e) => setAudio(e.target.files?.[0] ?? null)}
-                    className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all file:mr-3 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-green-400 file:text-black file:rounded-lg hover:file:bg-green-300 cursor-pointer"
-                  />
-                  <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400/60" />
-                </div>
-                {audio && <p className="text-xs text-green-400 flex items-center mt-1">✓ {audio.name}</p>}
-              </div>
-
-              {/* Cover Upload */}
-              <div className="space-y-2">
-                <label className="flex items-center text-sm font-medium text-green-400 mb-2">
-                  <ImageIcon className="w-4 h-4 mr-2" />
-                  Muqova rasmi (ixtiyoriy)
-                </label>
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setCover(e.target.files?.[0] ?? null)}
-                    className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all file:mr-3 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-green-400 file:text-black file:rounded-lg hover:file:bg-green-300 cursor-pointer"
-                  />
-                  <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-400/60" />
-                </div>
-                {cover && <p className="text-xs text-green-400 flex items-center mt-1">✓ {cover.name}</p>}
-              </div>
-
-              {/* Title & Artist */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-green-400">Qo&apos;shiq nomi</label>
-                <input
-                  type="text"
-                  placeholder="Yangi nom (Title)"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-green-400">Ijrochi</label>
-                <input
-                  type="text"
-                  placeholder="Artist nomi"
-                  value={artist}
-                  onChange={(e) => setArtist(e.target.value)}
-                  className="w-full p-3 sm:p-4 bg-black/60 border border-green-400/30 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
-                />
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={!audio || isLoading}
-                className="w-full bg-green-400 text-black font-semibold py-3 sm:py-4 px-6 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.8)] hover:shadow-[0_0_20px_rgba(34,197,94,1)] transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center space-x-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
-                    <span>Ishlanmoqda...</span>
-                  </>
-                ) : (
-                  <>
-                    <Edit3 className="w-5 h-5" />
-                    <span>Tahrirlash</span>
-                    <Download className="w-5 h-5" />
-                  </>
-                )}
-              </button>
-
-              <div className="mt-6 p-4 bg-black/50 rounded-xl border border-green-400/20">
-                <p className="text-xs text-gray-400 text-center">
-                  💡 Faqat MP3 formatdagi audio fayllar qo&apos;llab-quvvatlanadi
-                </p>
-              </div>
-            </div>
+          {/* Cover Upload */}
+          <div>
+            <label className="flex items-center text-sm text-green-400 mb-2">
+              <ImageIcon className="w-4 h-4 mr-2" />
+              Muqova rasmi (ixtiyoriy)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setCover(e.target.files?.[0] ?? null)}
+              className="w-full text-sm text-gray-100 border border-green-400/30 rounded-lg p-2 bg-black/60 file:mr-2 file:py-1 file:px-3 file:bg-green-400 file:text-black file:rounded-md cursor-pointer"
+            />
+            {cover && <p className="text-xs text-green-400 mt-1">✓ {cover.name}</p>}
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-gray-500 text-sm">Professional audio editing tool</p>
+          {/* Title & Artist */}
+          <div>
+            <label className="block text-sm text-green-400 mb-1">Qo&apos;shiq nomi</label>
+            <input
+              type="text"
+              placeholder="Yangi nom (Title)"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-2 rounded-lg bg-black/60 text-gray-100 border border-green-400/30 focus:ring-2 focus:ring-green-400 outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-green-400 mb-1">Ijrochi</label>
+            <input
+              type="text"
+              placeholder="Artist nomi"
+              value={artist}
+              onChange={(e) => setArtist(e.target.value)}
+              className="w-full p-2 rounded-lg bg-black/60 text-gray-100 border border-green-400/30 focus:ring-2 focus:ring-green-400 outline-none"
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            onClick={handleSubmit}
+            disabled={!audio || isLoading}
+            className="w-full bg-green-400 text-black font-semibold py-2 rounded-lg shadow hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
+                Ishlanmoqda...
+              </>
+            ) : (
+              <>
+                <Edit3 className="w-5 h-5" />
+                Tahrirlash
+                <Download className="w-5 h-5" />
+              </>
+            )}
+          </button>
         </div>
-      </main>
+      </div>
+
+      {/* Footer */}
+      <footer className="mt-6 text-center text-gray-500 text-xs">
+        © {new Date().getFullYear()} MP3 Editor
+      </footer>
     </div>
   );
 }
