@@ -64,9 +64,13 @@ export default function Home() {
 
         setSuccess("Audio tayyor va yuklab olindi!");
       }
-    } catch (err: any) {
-      alert("Xatolik: " + err.message);
-    } finally {
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert("Xatolik: " + err.message);
+      } else {
+        alert("Xatolik yuz berdi");
+      }
+    }     finally {
       setLoading(false);
     }
   };
@@ -97,8 +101,8 @@ declare global {
       WebApp?: {
         initDataUnsafe?: {
           user?: {
-            id?: number | string;
-            [key: string]: any;
+            id?: string | number;
+            [key: string]: unknown; // qo‘shimcha fieldlar uchun
           };
         };
       };

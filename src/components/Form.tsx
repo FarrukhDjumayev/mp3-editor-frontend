@@ -4,22 +4,22 @@ import React from "react";
 
 interface FormProps {
   audio: File | null;
-  setAudio: (file: File | null) => void;
+  setAudio: React.Dispatch<React.SetStateAction<File | null>>;
   cover: File | null;
-  setCover: (file: File | null) => void;
+  setCover: React.Dispatch<React.SetStateAction<File | null>>;
   title: string;
-  setTitle: (value: string) => void;
+  setTitle: React.Dispatch<React.SetStateAction<string>>;
   artist: string;
-  setArtist: (value: string) => void;
+  setArtist: React.Dispatch<React.SetStateAction<string>>;
   loading: boolean;
   success: string;
   onSubmit: () => void;
 }
 
 export default function Form({
-  audio,
+  // audio,
   setAudio,
-  cover,
+  // cover,
   setCover,
   title,
   setTitle,
@@ -43,7 +43,7 @@ export default function Form({
             type="file"
             accept="audio/*"
             onChange={(e) => setAudio(e.target.files?.[0] || null)}
-            className="w-full bg-gray-700 p-2 rounded-lg"
+            className="w-full bg-gray-700 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
@@ -54,7 +54,7 @@ export default function Form({
             type="file"
             accept="image/*"
             onChange={(e) => setCover(e.target.files?.[0] || null)}
-            className="w-full bg-gray-700 p-2 rounded-lg"
+            className="w-full bg-gray-700 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
@@ -65,7 +65,8 @@ export default function Form({
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-gray-700 p-2 rounded-lg"
+            placeholder="Musiqa nomini kiriting"
+            className="w-full bg-gray-700 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
@@ -76,7 +77,8 @@ export default function Form({
             type="text"
             value={artist}
             onChange={(e) => setArtist(e.target.value)}
-            className="w-full bg-gray-700 p-2 rounded-lg"
+            placeholder="Artist nomini kiriting"
+            className="w-full bg-gray-700 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
@@ -91,7 +93,9 @@ export default function Form({
 
         {/* Success Message */}
         {success && (
-          <p className="text-green-400 text-center mt-3 font-medium">{success}</p>
+          <p className="text-green-400 text-center mt-3 font-medium">
+            {success}
+          </p>
         )}
       </div>
     </div>
