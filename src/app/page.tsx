@@ -1,62 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Music, Edit3, FileMusic, Image as ImageIcon } from "lucide-react";
-
-// Extend the Window interface to include Telegram
-export {};
-
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp?: {
-        initDataUnsafe?: {
-          user?: {
-            id: number | string;
-            first_name?: string;
-            last_name?: string;
-            username?: string;
-            language_code?: string;
-            [key: string]: unknown;
-          };
-          query_id?: string;
-          auth_date?: string;
-          hash?: string;
-          [key: string]: unknown;
-        };
-        initData?: string;
-        expand?: () => void;
-        close?: () => void;
-        ready?: () => void;
-        sendData?: (data: string) => void;
-        [key: string]: unknown;
-      };
-      [key: string]: unknown;
-    };
-  }
-}
-
 
 export default function Home() {
   const [audio, setAudio] = useState<File | null>(null);
   const [cover, setCover] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
-  const [telegramId, setTelegramId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // ✅ Telegram foydalanuvchi ID olish
+  // Botni avtomatik ishga tushirish
   useEffect(() => {
-    if (typeof window !== "undefined" && window.Telegram?.WebApp?.initDataUnsafe?.user) {
-      setTelegramId(String(window.Telegram.WebApp.initDataUnsafe.user.id));
-    } else {
-      console.warn("Telegram WebApp maʼlumotlari topilmadi!");
-    }
+    fetch("/api/bot")
+      .then(() => console.log("Bot ishga tushdi"))
+      .catch((err) => console.error("Bot ishga tushmadi:", err));
   }, []);
 
   const handleSubmit = async () => {
     if (!audio) return alert("Avval MP3 fayl yuklang!");
-    if (!telegramId) return alert("Telegram ID olinmadi!");
 
     setIsLoading(true);
 
@@ -65,7 +27,6 @@ export default function Home() {
     if (cover) formData.append("cover", cover);
     formData.append("title", title);
     formData.append("artist", artist);
-    formData.append("telegram_id", telegramId);
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/edit`, {
@@ -76,7 +37,7 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Xatolik!");
 
-      alert("Audio tayyor! Bot orqali yuborildi ✅");
+      alert("Audio tayyor! ✅");
     } catch (err) {
       console.error(err);
       alert("Xatolik yuz berdi!");
@@ -109,7 +70,7 @@ export default function Home() {
             </label>
             <input
               type="file"
-              accept="audio/*,.mp3"
+              accept="audio/mpeg"
               onChange={(e) => setAudio(e.target.files?.[0] ?? null)}
               className="w-full text-sm text-gray-100 border border-green-400/30 rounded-lg p-2 bg-black/60 file:mr-2 file:py-1 file:px-3 file:bg-green-400 file:text-black file:rounded-md cursor-pointer"
             />
@@ -120,7 +81,7 @@ export default function Home() {
           <div>
             <label className="flex items-center text-sm text-green-400 mb-2">
               <ImageIcon className="w-4 h-4 mr-2" />
-              Muqova rasmi (ixtiyoriy)
+              Cover yuklash (ixtiyoriy)
             </label>
             <input
               type="file"
